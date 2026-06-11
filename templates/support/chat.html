@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
+    <title>COFINANCE CI — Support Chat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #1a3c5e;
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-dot.online { background: #4caf50; }
+        #agent-status {
+            font-size: 13px;
+            color: #b0c4d8;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .message.sent {
+            align-self: flex-end;
+            background: #1a3c5e;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.received {
+            align-self: flex-start;
+            background: #f0f2f5;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+        .message .meta {
+            font-size: 11px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+        .typing-indicator {
+            font-size: 12px;
+            color: #888;
+            padding: 0 20px;
+            height: 20px;
+            font-style: italic;
+        }
+        .chat-input {
+            padding: 16px 20px;
+            border-top: 1px solid #e8ecef;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #dde3ea;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input input:focus {
+            border-color: #1a3c5e;
+        }
+        .chat-input button {
+            padding: 12px 24px;
+            background: #1a3c5e;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-input button:hover {
+            background: #255080;
+        }
+        .connect-form {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .connect-form input {
+            padding: 12px 16px;
+            border: 1px solid #dde3ea;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .connect-form button {
+            padding: 12px;
+            background: #1a3c5e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .connect-form h3 {
+            color: #1a3c5e;
+            font-size: 20px;
+        }
+        #connection-panel { display: block; }
+        #chat-panel { display: none; }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        <div>
+            <h2>💬 COFINANCE CI — Support</h2>
+            <div id="agent-status">
+                <span class="status-dot" id="dot"></span>
+                <span id="status-text">Non connecté</span>
+            </div>
+        </div>
+        <div id="conv-info" style="font-size:13px;color:#b0c4d8;">
+        </div>
+    </div>
+
+    <div id="connection-panel" class="connect-form">
+        <h3>Se connecter au chat</h3>
+        <input type="text" id="token-input" 
+               placeholder="Token JWT (Bearer token)"/>
+        <input type="number" id="conv-id-input" 
+               placeholder="ID de la conversation" value="1"/>
+        <button onclick="connectChat()">
+            Rejoindre la conversation
+        </button>
+    </div>
+
+    <div id="chat-panel" style="display:none;
+         flex-direction:column;flex:1;overflow:hidden;">
+        <div class="chat-messages" id="messages"></div>
+        <div class="typing-indicator" id="typing"></div>
+        <div class="chat-input">
+            <input type="text" id="message-input"
+                   placeholder="Écrire un message..."
+                   onkeydown="handleKeyDown(event)"/>
+            <button onclick="sendMessage()">Envoyer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let socket = null;
+    let currentUser = null;
+    let typingTimeout = null;
+
+    async function connectChat() {
+        const token = document.getElementById(
+            'token-input'
+        ).value.trim();
+        const convId = document.getElementById(
+            'conv-id-input'
+        ).value.trim();
+
+        if (!token || !convId) {
+            alert('Token et ID conversation requis.');
+            return;
+        }
+
+        // Récupérer les infos utilisateur
+        try {
+            const res = await fetch(
+                '/api/accounts/profile/',
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            if (!res.ok) {
+                alert('Token invalide.');
+                return;
+            }
+            currentUser = await res.json();
+        } catch(e) {
+            alert('Erreur de connexion à l\'API.');
+            return;
+        }
+
+        // Connexion WebSocket
+        socket = new WebSocket(
+            `ws://${window.location.host}/ws/support/${convId}/?token=${token}`
+        );
+
+        socket.onopen = () => {
+            document.getElementById(
+                'connection-panel'
+            ).style.display = 'none';
+            document.getElementById(
+                'chat-panel'
+            ).style.display = 'flex';
+            document.getElementById(
+                'dot'
+            ).classList.add('online');
+            document.getElementById(
+                'status-text'
+            ).textContent = `Connecté en tant que ${currentUser.username}`;
+            document.getElementById(
+                'conv-info'
+            ).textContent = `Conversation #${convId}`;
+        };
+
+        socket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            console.log("Message WebSocket reçu:", data);
+
+            if (data.type === 'message') {
+                appendMessage(data);
+                document.getElementById('typing').textContent = '';
+            } else if (data.type === 'typing') {
+                if (data.user !== currentUser.username) {
+                    document.getElementById('typing').textContent =
+                        data.is_typing
+                        ? `${data.user} est en train d'écrire...`
+                        : '';
+                }
+            } else if (data.type === 'connection') {
+                console.log(data.message);
+            }
+        };
+
+        socket.onclose = () => {
+            document.getElementById(
+                'dot'
+            ).classList.remove('online');
+            document.getElementById(
+                'status-text'
+            ).textContent = 'Déconnecté';
+        };
+
+        socket.onerror = (e) => {
+            console.error('WebSocket error:', e);
+        };
+    }
+
+    function appendMessage(data) {
+        const messages = document.getElementById('messages');
+        const div = document.createElement('div');
+        const isSent = currentUser &&
+                       data.user_id === currentUser.id;
+        div.classList.add('message', isSent ? 'sent' : 'received');
+        div.innerHTML = `
+            <div>${escapeHtml(data.message)}</div>
+            <div class="meta">
+                ${isSent ? 'Vous' : data.user} · ${
+                    new Date(data.date_envoi)
+                        .toLocaleTimeString('fr-FR', {
+                            hour: '2-digit', minute: '2-digit'
+                        })
+                }
+            </div>
+        `;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        const msg = input.value.trim();
+        if (!msg || !socket) return;
+        socket.send(JSON.stringify({
+            type: 'message',
+            message: msg
+        }));
+        input.value = '';
+    }
+
+    function handleKeyDown(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+            return;
+        }
+        // Indicateur de frappe
+        if (socket) {
+            socket.send(JSON.stringify({
+                type: 'typing',
+                is_typing: true
+            }));
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.send(JSON.stringify({
+                    type: 'typing',
+                    is_typing: false
+                }));
+            }, 2000);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+</script>
+</body>
+</html>
