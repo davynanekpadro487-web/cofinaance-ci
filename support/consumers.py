@@ -39,6 +39,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
+        # Vérification de l'existence de la conversation et des droits d'accès
+        try:
+            from .models import Conversation
+            conversation = await database_sync_to_async(Conversation.objects.get)(id=self.conversation_id)
+            if self.user.role == 'client' and conversation.client_id != self.user.id:
+                await self.close()
+                return
+        except Exception:
+            await self.close()
+            return
+
         await self.accept()
 
         # Rejoindre le groupe de la conversation
@@ -109,7 +120,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'user_id': self.user.id,
                         'role': self.user.role,
                         'message_id': message.id,
-                        'date_envoi': str(message.date_envoi)
+                        'date_envoi': message.date_envoi.isoformat()
                     }
                 )
         except Exception as e:

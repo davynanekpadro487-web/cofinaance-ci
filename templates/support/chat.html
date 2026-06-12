@@ -265,16 +265,21 @@
                 }
             } else if (data.type === 'connection') {
                 console.log(data.message);
+            } else if (data.type === 'error') {
+                alert("Erreur: " + data.message);
             }
         };
 
-        socket.onclose = () => {
+        socket.onclose = (event) => {
             document.getElementById(
                 'dot'
             ).classList.remove('online');
             document.getElementById(
                 'status-text'
             ).textContent = 'Déconnecté';
+            if (event.code !== 1000) {
+                alert("Connexion perdue ou refusée (code : " + event.code + "). Assurez-vous que l'ID de la conversation existe et que vous êtes autorisé.");
+            }
         };
 
         socket.onerror = (e) => {
