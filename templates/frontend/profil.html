@@ -1,0 +1,266 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Mon Profil — COFINANCE CI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+        color: var(--primary-dark);
+        font-weight: 700;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .profile-sidebar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-avatar-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(26, 60, 94, 0.1);
+        color: var(--primary);
+        font-size: 36px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid var(--accent);
+        margin-bottom: 16px;
+    }
+
+    .profile-sidebar h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 4px;
+    }
+
+    .profile-sidebar p {
+        font-size: 13px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+
+    .form-group input, .form-group select {
+        padding: 10px 14px;
+        border: 2px solid #e8ecef;
+        border-radius: 8px;
+        outline: none;
+        font-family: inherit;
+        font-size: 14px;
+        transition: var(--transition);
+    }
+
+    .form-group input:focus, .form-group select:focus {
+        border-color: var(--primary);
+    }
+
+    .form-group input[readonly] {
+        background: #f8fafc;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Mon Profil</h1>
+</div>
+
+<div class="profile-grid">
+    <!-- Left column: Summary -->
+    <div>
+        <div class="card profile-sidebar">
+            <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+            <h3 id="profile-sidebar-username">Utilisateur</h3>
+            <p id="profile-sidebar-role">Client</p>
+        </div>
+    </div>
+
+    <!-- Right column: Forms -->
+    <div>
+        <!-- Profile info form -->
+        <div class="card">
+            <h2 style="color: var(--primary-dark); margin-bottom: 24px; font-size: 18px; font-weight: 600;">Détails du Profil</h2>
+            <form id="profile-form" onsubmit="updateProfile(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="username">Nom d'utilisateur (non modifiable)</label>
+                        <input type="text" id="username" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Adresse Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="telephone">Numéro de téléphone</label>
+                        <input type="text" id="telephone">
+                    </div>
+                    <div class="form-group">
+                        <label for="region">Région</label>
+                        <input type="text" id="region">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="date_naissance">Date de naissance</label>
+                    <input type="date" id="date_naissance">
+                </div>
+
+                <button type="submit" class="btn-action accent" style="width:100%; justify-content:center; padding:12px;">
+                    Sauvegarder les modifications
+                </button>
+            </form>
+        </div>
+
+        <!-- Password change form -->
+        <div class="card">
+            <h2 style="color: var(--primary-dark); margin-bottom: 24px; font-size: 18px; font-weight: 600;">Changer mon mot de passe</h2>
+            <form id="password-form" onsubmit="changePassword(event)">
+                <div class="form-group">
+                    <label for="ancien_password">Ancien mot de passe</label>
+                    <input type="password" id="ancien_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="nouveau_password">Nouveau mot de passe</label>
+                    <input type="password" id="nouveau_password" required>
+                </div>
+
+                <button type="submit" class="btn-action" style="width:100%; justify-content:center; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
+                    Modifier le mot de passe
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProfileData();
+    });
+
+    async function loadProfileData() {
+        try {
+            const data = await apiCall('GET', '/api/accounts/profile/');
+            if (data) {
+                document.getElementById('username').value = data.username;
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('telephone').value = data.telephone || '';
+                document.getElementById('region').value = data.region || '';
+                document.getElementById('date_naissance').value = data.date_naissance || '';
+
+                // Sidebar info
+                document.getElementById('profile-sidebar-username').textContent = data.username;
+                
+                let roleDisplay = 'Client';
+                if (data.role === 'agent') roleDisplay = 'Agent de terrain';
+                if (data.role === 'admin') roleDisplay = 'Administrateur';
+                document.getElementById('profile-sidebar-role').textContent = roleDisplay;
+
+                // Initials
+                document.getElementById('profile-avatar-large').textContent = data.username.substring(0, 2).toUpperCase();
+            }
+        } catch (error) {
+            console.error('Failed to load profile:', error);
+        }
+    }
+
+    async function updateProfile(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const telephone = document.getElementById('telephone').value;
+        const region = document.getElementById('region').value;
+        const date_naissance = document.getElementById('date_naissance').value || null;
+
+        try {
+            const res = await apiCall('PUT', '/api/accounts/profile/', {
+                email: email,
+                telephone: telephone,
+                region: region,
+                date_naissance: date_naissance
+            });
+
+            if (res) {
+                alert('Profil mis à jour avec succès !');
+                loadProfileData();
+                
+                // Update header username
+                localStorage.setItem('username', res.username);
+                document.getElementById('header-user-name').textContent = res.username;
+                const initials = res.username.substring(0, 2).toUpperCase();
+                document.getElementById('header-user-avatar').textContent = initials;
+            }
+        } catch (error) {
+            alert('Erreur lors de la mise à jour : ' + error.message);
+        }
+    }
+
+    async function changePassword(event) {
+        event.preventDefault();
+        const ancien = document.getElementById('ancien_password').value;
+        const nouveau = document.getElementById('nouveau_password').value;
+
+        try {
+            const res = await apiCall('POST', '/api/accounts/change-password/', {
+                ancien_password: ancien,
+                nouveau_password: nouveau
+            });
+
+            if (res) {
+                alert('Votre mot de passe a été modifié avec succès !');
+                document.getElementById('password-form').reset();
+            }
+        } catch (error) {
+            alert('Erreur: ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

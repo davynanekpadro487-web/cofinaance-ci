@@ -1,0 +1,362 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Dashboard — COFINANCE CI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-banner {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: var(--white);
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-banner h1 {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .welcome-banner p {
+        font-size: 15px;
+        opacity: 0.9;
+        max-width: 600px;
+    }
+
+    .welcome-banner::after {
+        content: "\f19c";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        right: 40px;
+        bottom: -20px;
+        font-size: 120px;
+        opacity: 0.1;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        border-top: 4px solid var(--primary);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-card.accent {
+        border-top-color: var(--accent);
+    }
+
+    .stat-card.success {
+        border-top-color: #2ecc71;
+    }
+
+    .stat-card.warning {
+        border-top-color: #f1c40f;
+    }
+
+    .stat-info h3 {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+
+    .stat-info p {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .stat-card:nth-child(1) .stat-icon { background: rgba(26, 60, 94, 0.1); color: var(--primary); }
+    .stat-card:nth-child(2) .stat-icon { background: rgba(201, 168, 76, 0.1); color: var(--accent); }
+    .stat-card:nth-child(3) .stat-icon { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+    .stat-card:nth-child(4) .stat-icon { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .content-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f2f5;
+    }
+
+    .content-card-header h2 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: var(--primary);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-action:hover {
+        background: var(--primary-light);
+    }
+
+    .btn-action.accent {
+        background: var(--accent);
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+    .btn-action.accent:hover {
+        background: var(--accent-light);
+    }
+
+    /* Quick Links Menu for clients/agents */
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .quick-link-card {
+        background: var(--bg-light);
+        padding: 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--primary-dark);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: var(--transition);
+        border: 1px solid #e8ecef;
+    }
+
+    .quick-link-card:hover {
+        background: var(--white);
+        transform: translateY(-2px);
+        box-shadow: var(--card-shadow);
+        border-color: var(--accent);
+    }
+
+    .quick-link-card i {
+        font-size: 24px;
+        color: var(--accent);
+    }
+
+    .quick-link-card h4 {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .quick-link-card p {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-banner">
+    <h1 id="welcome-title">Bienvenue sur votre espace !</h1>
+    <p>Gérez vos demandes de microcrédits et vos souscriptions d'assurance en toute simplicité.</p>
+</div>
+
+<!-- Admin Dashboard Stats -->
+<div id="admin-stats-section" style="display: none;">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Clients Totaux</h3>
+                <p id="stat-clients">0</p>
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+        <div class="stat-card accent">
+            <div class="stat-info">
+                <h3>Crédits Actifs</h3>
+                <p id="stat-credits">0</p>
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-info">
+                <h3>Assurances Actives</h3>
+                <p id="stat-assurances">0</p>
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-info">
+                <h3>Taux de Recouvrement</h3>
+                <p id="stat-recouvrement">0%</p>
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-percent"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- General Dashboard Layout -->
+<div class="dashboard-layout">
+    <!-- Left column: Actions or details -->
+    <div class="content-card">
+        <div class="content-card-header">
+            <h2 id="section-title"><i class="fa-solid fa-star"></i> Vos Actions Rapides</h2>
+        </div>
+        
+        <div id="client-actions" style="display: none;">
+            <p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted);">Que souhaitez-vous faire aujourd'hui ?</p>
+            <div class="quick-links">
+                <a href="/credits/" class="quick-link-card">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <h4>Demander un Crédit</h4>
+                    <p>Obtenez un financement rapide pour vos projets commerciaux.</p>
+                </a>
+                <a href="/assurance/" class="quick-link-card">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h4>Souscrire une Assurance</h4>
+                    <p>Protégez votre activité ou votre santé dès aujourd'hui.</p>
+                </a>
+                <a href="/chat/" class="quick-link-card">
+                    <i class="fa-solid fa-comments"></i>
+                    <h4>Discuter avec le Support</h4>
+                    <p>Un agent est disponible pour répondre à vos questions.</p>
+                </a>
+            </div>
+        </div>
+
+        <div id="admin-actions" style="display: none;">
+            <p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted);">Espace d'administration globale du système de microfinance.</p>
+            <div class="quick-links">
+                <a href="/credits/" class="quick-link-card">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <h4>Valider les Crédits</h4>
+                    <p>Passez en revue et approuvez les demandes de crédit en attente.</p>
+                </a>
+                <a href="/chat/" class="quick-link-card">
+                    <i class="fa-solid fa-comments"></i>
+                    <h4>Support clients en ligne</h4>
+                    <p>Répondez aux demandes d'assistance des clients.</p>
+                </a>
+                <a href="/profil/" class="quick-link-card">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <h4>Gérer l'équipe</h4>
+                    <p>Configurez les profils d'agents de terrain.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: Information card -->
+    <div class="content-card">
+        <div class="content-card-header">
+            <h2><i class="fa-solid fa-circle-info"></i> Informations Système</h2>
+        </div>
+        <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted);">
+            <p style="margin-bottom: 12px;"><strong>Cofinance Côte d'Ivoire</strong> est une plateforme moderne dédiée à l'inclusion financière.</p>
+            <p style="margin-bottom: 12px;">Pour toute question relative à l'utilisation de la plateforme ou aux conditions d'attribution des crédits, veuillez contacter notre centre de support en direct.</p>
+            <p>Heures de service : 24h/24, 7j/7.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const username = localStorage.getItem('username') || 'Utilisateur';
+        const role = localStorage.getItem('user_role') || 'client';
+
+        document.getElementById('welcome-title').innerHTML = `Bienvenue, <span>${username}</span> !`;
+
+        if (role === 'admin') {
+            document.getElementById('admin-stats-section').style.display = 'block';
+            document.getElementById('admin-actions').style.display = 'block';
+            document.getElementById('section-title').innerHTML = `<i class="fa-solid fa-gears"></i> Menu Administration`;
+            
+            // Fetch dashboard statistics
+            try {
+                const stats = await apiCall('GET', '/api/dashboard/');
+                if (stats) {
+                    document.getElementById('stat-clients').textContent = stats.utilisateurs.total_clients || '0';
+                    document.getElementById('stat-credits').textContent = stats.credits.total || '0';
+                    document.getElementById('stat-assurances').textContent = stats.assurance.souscriptions_actives || '0';
+                    document.getElementById('stat-recouvrement').textContent = `${stats.remboursements.taux_recouvrement_pct || 0}%`;
+                }
+            } catch (error) {
+                console.error('Failed to load admin stats:', error);
+            }
+        } else {
+            document.getElementById('client-actions').style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

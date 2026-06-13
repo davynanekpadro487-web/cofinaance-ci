@@ -1,0 +1,325 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Assurance — COFINANCE CI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+        color: var(--primary-dark);
+        font-weight: 700;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .product-card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        padding: 30px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid #edf2f7;
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        border-color: var(--accent);
+    }
+
+    .product-header {
+        margin-bottom: 20px;
+    }
+
+    .product-type {
+        font-size: 11px;
+        color: var(--accent);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .product-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 10px;
+    }
+
+    .product-description {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .product-price {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 20px 0;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .product-price span {
+        font-size: 14px;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .product-meta {
+        font-size: 13px;
+        color: var(--text-dark);
+        margin-bottom: 24px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .product-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-meta-item i {
+        color: var(--accent);
+        width: 18px;
+        text-align: center;
+    }
+
+    /* Subscriptions list */
+    .card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        padding: 24px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 14px;
+    }
+
+    th {
+        background: #f8fafc;
+        padding: 16px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        border-bottom: 2px solid #edf2f7;
+    }
+
+    td {
+        padding: 16px;
+        border-bottom: 1px solid #edf2f7;
+        color: var(--text-dark);
+    }
+
+    tr:hover td {
+        background: #fdfdfd;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .badge.active { background: #c6f6d5; color: #22543d; }
+    .badge.expiree { background: #fed7d7; color: #742a2a; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Produits d'Assurance Mobile</h1>
+</div>
+
+<!-- Available Insurance Products Grid -->
+<div class="products-grid" id="products-list">
+    <!-- Products load dynamically -->
+</div>
+
+<!-- Active Subscriptions -->
+<div class="card">
+    <h3 style="margin-bottom: 20px; color: var(--primary-dark); font-weight: 600;">Vos Souscriptions</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th id="th-subs-client">Client</th>
+                    <th>Produit</th>
+                    <th>Date souscription</th>
+                    <th>Date d'expiration</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody id="subscriptions-table-body">
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted);">Chargement de vos souscriptions...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProducts();
+        loadSubscriptions();
+        
+        const role = localStorage.getItem('user_role');
+        if (role === 'admin' || role === 'agent') {
+            document.getElementById('th-subs-client').style.display = 'table-cell';
+        } else {
+            document.getElementById('th-subs-client').style.display = 'none';
+        }
+    });
+
+    async function loadProducts() {
+        const role = localStorage.getItem('user_role');
+        const typeLabels = {
+            'vie': 'Assurance Vie',
+            'deces_invalidite': 'Décès-Invalidité'
+        };
+
+        try {
+            const data = await apiCall('GET', '/api/assurance/produits/');
+            console.log("data:", data);
+            
+            const grid = document.getElementById('products-list');
+            grid.innerHTML = '';
+
+            // Handle both flat array and paginated/wrapped response structures
+            const products = Array.isArray(data) ? data : (data && data.results ? data.results : []);
+
+            if (products.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Aucun produit d'assurance disponible.</p>`;
+                return;
+            }
+
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="product-header">
+                            <span class="product-type">${typeLabels[p.type_assurance] || p.type_assurance || 'Assurance'}</span>
+                            <h3 class="product-title">${p.nom}</h3>
+                            <p class="product-description">${p.description}</p>
+                        </div>
+                        
+                        <div class="product-price">
+                            ${parseFloat(p.prime_mensuelle || 0).toLocaleString()} FCFA
+                            <span>/ mois</span>
+                        </div>
+
+                        <div class="product-meta">
+                            <div class="product-meta-item">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>Durée du contrat : <strong>${p.duree_mois} mois</strong></span>
+                            </div>
+                            ${p.capital_assure ? `
+                            <div class="product-meta-item">
+                                <i class="fa-solid fa-hand-holding-hand"></i>
+                                <span>Couverture max : <strong>${parseFloat(p.capital_assure).toLocaleString()} FCFA</strong></span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${role === 'client' ? `
+                        <button class="btn-action accent" style="width: 100%; justify-content: center; padding: 12px;" onclick="subscribeProduct(${p.id}, '${p.nom}')">
+                            <i class="fa-solid fa-file-signature"></i> Souscrire
+                        </button>
+                    ` : `
+                        <button class="btn-action" style="width: 100%; justify-content: center; padding: 12px; background:#b0c4d8; color:#ffffff; cursor:not-allowed;" disabled>
+                            Vue Agent/Admin
+                        </button>
+                    `}
+                `;
+                grid.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Failed to load products:', error);
+        }
+    }
+
+    async function loadSubscriptions() {
+        const role = localStorage.getItem('user_role');
+        try {
+            const subs = await apiCall('GET', '/api/assurance/souscriptions/');
+            const tbody = document.getElementById('subscriptions-table-body');
+            tbody.innerHTML = '';
+
+            if (!subs || subs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Aucune souscription enregistrée.</td></tr>`;
+                return;
+            }
+
+            subs.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>#${s.id}</strong></td>
+                    ${(role === 'admin' || role === 'agent') ? `<td>${s.client.username} (${s.client.telephone})</td>` : ''}
+                    <td><strong>${s.produit.nom}</strong></td>
+                    <td>${new Date(s.date_souscription).toLocaleDateString()}</td>
+                    <td>${new Date(s.date_expiration).toLocaleDateString()}</td>
+                    <td><span class="badge ${s.statut}">${s.statut}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Failed to load subscriptions:', error);
+        }
+    }
+
+    async function subscribeProduct(productId, productName) {
+        if (!confirm(`Souhaitez-vous souscrire à l'assurance "${productName}" ?`)) return;
+        
+        try {
+            const res = await apiCall('POST', '/api/assurance/souscriptions/', {
+                produit: productId
+            });
+            if (res) {
+                alert(`Félicitations ! Votre souscription à "${productName}" est active.`);
+                loadSubscriptions();
+            }
+        } catch (error) {
+            alert('Erreur lors de la souscription : ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}COFINANCE CI{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1a3c5e;
+            --primary-light: #255080;
+            --primary-dark: #11283f;
+            --accent: #c9a84c;
+            --accent-light: #dfbe64;
+            --bg-light: #f4f7fa;
+            --text-dark: #333333;
+            --text-muted: #7f8c8d;
+            --white: #ffffff;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --sidebar-width: 260px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: var(--white);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand i {
+            color: var(--accent);
+            font-size: 24px;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--white);
+        }
+
+        .sidebar-brand h2 span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 24px 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-menu li {
+            padding: 0 16px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--white);
+        }
+
+        .sidebar-menu li.active a {
+            background: var(--accent);
+            color: var(--primary-dark);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
+        }
+
+        .sidebar-menu li.active a i {
+            color: var(--primary-dark);
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .sidebar-footer a:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        /* Main Layout */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Header Styling */
+        .top-header {
+            background: var(--white);
+            height: 70px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--primary-dark);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(26, 60, 94, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid var(--accent);
+        }
+
+        /* Page Content Area */
+        .page-content {
+            padding: 32px;
+            flex: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -var(--sidebar-width);
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .top-header {
+                justify-content: space-between;
+            }
+
+            .menu-toggle {
+                display: block !important;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-building-columns"></i>
+            <h2>COFINANCE <span>CI</span></h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li id="menu-dashboard">
+                <a href="/dashboard/">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li id="menu-credits">
+                <a href="/credits/">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <span>Microcrédits</span>
+                </a>
+            </li>
+            <li id="menu-assurance">
+                <a href="/assurance/">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Assurance</span>
+                </a>
+            </li>
+            <li id="menu-notifications">
+                <a href="/notifications/">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li id="menu-chat">
+                <a href="/chat/">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Support Chat</span>
+                </a>
+            </li>
+            <li id="menu-profil">
+                <a href="/profil/">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Mon Profil</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" onclick="logout(event)">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Header -->
+        <header class="top-header">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-name" id="header-user-name">Chargement...</div>
+                    <div class="user-role" id="header-user-role">...</div>
+                </div>
+                <div class="user-avatar" id="header-user-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="page-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Core Scripts -->
+    <script>
+        // Check Auth immediately
+        checkAuth();
+
+        function checkAuth() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/';
+            }
+        }
+
+        // Set User details in Header
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update active menu item
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/dashboard/')) {
+                document.getElementById('menu-dashboard').classList.add('active');
+            } else if (currentPath.includes('/credits/')) {
+                document.getElementById('menu-credits').classList.add('active');
+            } else if (currentPath.includes('/assurance/')) {
+                document.getElementById('menu-assurance').classList.add('active');
+            } else if (currentPath.includes('/notifications/')) {
+                document.getElementById('menu-notifications').classList.add('active');
+            } else if (currentPath.includes('/chat/')) {
+                document.getElementById('menu-chat').classList.add('active');
+            } else if (currentPath.includes('/profil/')) {
+                document.getElementById('menu-profil').classList.add('active');
+            }
+
+            const username = localStorage.getItem('username') || 'Utilisateur';
+            let role = localStorage.getItem('user_role') || 'client';
+            
+            // Format role display
+            let roleDisplay = 'Client';
+            if (role === 'agent') roleDisplay = 'Agent de terrain';
+            if (role === 'admin') roleDisplay = 'Administrateur';
+
+            document.getElementById('header-user-name').textContent = username;
+            document.getElementById('header-user-role').textContent = roleDisplay;
+            
+            // Set Avatar Initials
+            const initials = username.substring(0, 2).toUpperCase();
+            document.getElementById('header-user-avatar').textContent = initials;
+        });
+
+        // API Call Helper
+        async function apiCall(method, endpoint, data = null) {
+            const token = localStorage.getItem('access_token');
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const config = {
+                method: method,
+                headers: headers
+            };
+
+            if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(endpoint, config);
+                if (response.status === 401) {
+                    // Token expired or invalid, log out
+                    logout();
+                    return null;
+                }
+                
+                // Return json if readable, otherwise response object
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return await response.json();
+                }
+                return response;
+            } catch (error) {
+                console.error(`API Call failed to ${endpoint}:`, error);
+                throw error;
+            }
+        }
+
+        // Logout function
+        function logout(event) {
+            if (event) event.preventDefault();
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('user_id');
+            window.location.href = '/';
+        }
+
+        // Toggle Sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

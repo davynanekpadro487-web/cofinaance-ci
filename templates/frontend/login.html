@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — COFINANCE CI</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1a3c5e;
+            --primary-dark: #11283f;
+            --accent: #c9a84c;
+            --accent-hover: #b0913b;
+            --bg-gradient: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-muted: #888888;
+            --danger: #e74c3c;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 450px;
+            perspective: 1000px;
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+            width: 100%;
+            transition: var(--transition);
+            transform: translateY(0);
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-logo {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .brand-logo i {
+            color: var(--accent);
+        }
+
+        .brand-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+
+        .brand-header h1 span {
+            color: var(--accent);
+        }
+
+        .brand-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--primary);
+            opacity: 0.6;
+            font-size: 16px;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid #e8ecef;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--primary);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 15px rgba(26, 60, 94, 0.3);
+        }
+
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 24px;
+        }
+
+        /* Spinner for loading state */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--white);
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <h1>COFINANCE <span>CI</span></h1>
+                <p>Plateforme de Microfinance & Assurance Mobile</p>
+            </div>
+
+            <!-- Error banner -->
+            <div class="error-message" id="error-banner">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="error-text">Identifiants incorrects.</span>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" id="username" placeholder="Entrez votre nom d'utilisateur" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="password" placeholder="Entrez votre mot de passe" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                            <i class="fa-solid fa-eye" id="password-toggle-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="submit-btn">
+                    <span>Se connecter</span>
+                    <div class="spinner" id="btn-spinner"></div>
+                </button>
+            </form>
+
+            <div class="footer-text">
+                &copy; 2026 COFINANCE CI. Tous droits réservés.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is already logged in
+        if (localStorage.getItem('access_token')) {
+            window.location.href = '/dashboard/';
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('password-toggle-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value;
+            const errorBanner = document.getElementById('error-banner');
+            const errorText = document.getElementById('error-text');
+            const submitBtn = document.getElementById('submit-btn');
+            const btnSpinner = document.getElementById('btn-spinner');
+
+            // Hide error banner and show loader
+            errorBanner.style.display = 'none';
+            btnSpinner.style.display = 'block';
+            submitBtn.disabled = true;
+
+            try {
+                // 1. Call Login endpoint
+                const loginResponse = await fetch('/api/accounts/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput,
+                        password: passwordInput
+                    })
+                });
+
+                if (!loginResponse.ok) {
+                    const errorData = await loginResponse.json().catch(() => ({}));
+                    throw new Error(errorData.detail || 'Nom d\'utilisateur ou mot de passe incorrect.');
+                }
+
+                const loginData = await loginResponse.json();
+                
+                // Save tokens
+                localStorage.setItem('access_token', loginData.access);
+                localStorage.setItem('refresh_token', loginData.refresh);
+
+                // 2. Fetch User Profile
+                const profileResponse = await fetch('/api/accounts/profile/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${loginData.access}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!profileResponse.ok) {
+                    throw new Error('Erreur lors de la récupération du profil.');
+                }
+
+                const profileData = await profileResponse.json();
+
+                // Save profile details
+                localStorage.setItem('username', profileData.username);
+                localStorage.setItem('user_role', profileData.role);
+                localStorage.setItem('user_id', profileData.id);
+
+                // Redirect to dashboard
+                window.location.href = '/dashboard/';
+
+            } catch (error) {
+                console.error('Login error:', error);
+                errorText.textContent = error.message;
+                errorBanner.style.display = 'flex';
+                
+                // Reset submit button state
+                btnSpinner.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
