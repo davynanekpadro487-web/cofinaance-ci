@@ -20,6 +20,9 @@ urlpatterns = [
     path('chat/', TemplateView.as_view(
         template_name='support/chat.html'
     ), name='chat'),
+    path('support-chat/', TemplateView.as_view(
+        template_name='frontend/support.html'
+    ), name='support_frontend'),
     path('', TemplateView.as_view(
         template_name='frontend/login.html'), 
         name='login'),
