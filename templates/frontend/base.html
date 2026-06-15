@@ -249,6 +249,71 @@
             color: var(--primary);
             cursor: pointer;
         }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 280px;
+            max-width: 380px;
+            animation: toast-slide-in 0.3s ease-out forwards;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .toast.success {
+            background: #2ecc71; /* Green */
+        }
+
+        .toast.error {
+            background: #e74c3c; /* Red */
+        }
+
+        .toast.info {
+            background: #3498db; /* Blue */
+        }
+
+        @keyframes toast-slide-in {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.slide-out {
+            animation: toast-slide-out 0.3s ease-in forwards;
+        }
+
+        @keyframes toast-slide-out {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -431,7 +496,38 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('show');
         }
+
+        // Toast Helper
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = '<i class="fa-solid fa-info-circle"></i>';
+            if (type === 'success') {
+                icon = '<i class="fa-solid fa-circle-check"></i>';
+            } else if (type === 'error') {
+                icon = '<i class="fa-solid fa-circle-xmark"></i>';
+            }
+
+            toast.innerHTML = `
+                ${icon}
+                <div style="flex: 1;">${message}</div>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('slide-out');
+                toast.addEventListener('animationend', () => {
+                    toast.remove();
+                });
+            }, 3000);
+        }
     </script>
+    <div class="toast-container" id="toast-container"></div>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

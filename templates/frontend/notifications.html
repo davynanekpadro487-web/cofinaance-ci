@@ -171,11 +171,11 @@
         try {
             const res = await apiCall('POST', '/api/notifications/tout-lire/');
             if (res) {
-                alert('Toutes les notifications ont été marquées comme lues.');
+                showToast('Toutes les notifications ont été marquées comme lues.', 'success');
                 loadNotifications();
             }
         } catch (error) {
-            alert('Erreur: ' + error.message);
+            showToast('Erreur: ' + error.message, 'error');
         }
     }
 </script>

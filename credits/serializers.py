@@ -77,7 +77,8 @@ class DemandeCreditCreateSerializer(serializers.ModelSerializer):
         )
 
         # Générer l'échéancier de remboursement
-        taux_interet = 0.02  # 2% par mois
+        from decimal import Decimal
+        taux_interet = Decimal('0.02')  # 2% par mois
         montant_mensuel = round(
             montant * (1 + taux_interet * duree) / duree, 2
         )

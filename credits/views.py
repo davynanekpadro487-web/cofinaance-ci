@@ -83,6 +83,16 @@ class UpdateStatutCreditView(APIView):
         )
         if serializer.is_valid():
             serializer.save(agent=user)
+            
+            # BUG 1 - Notifications automatiques
+            from notifications.models import Notification
+            Notification.objects.create(
+                destinataire=demande.client,
+                titre="Statut de votre crédit mis à jour",
+                message=f"Votre demande de crédit #{demande.id} est maintenant : {demande.statut}",
+                type_notification='credit'
+            )
+            
             return Response(
                 DemandeCreditSerializer(demande).data
             )

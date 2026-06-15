@@ -466,7 +466,7 @@
                 selectConversation(newId);
             }
         } catch (error) {
-            alert('Erreur lors de la création de la conversation : ' + error.message);
+            showToast('Erreur lors de la création de la conversation : ' + error.message, 'error');
         }
     }
 
@@ -537,7 +537,7 @@
                 await selectConversation(id);
             }
         } catch (error) {
-            alert('Erreur lors de la prise en charge : ' + error.message);
+            showToast('Erreur lors de la prise en charge : ' + error.message, 'error');
         }
     }
 
@@ -658,7 +658,7 @@
         if (!text) return;
 
         if (!currentSocket || currentSocket.readyState !== WebSocket.OPEN) {
-            alert("Connexion de support perdue. Veuillez recharger la page.");
+            showToast("Connexion de support perdue. Veuillez recharger la page.", 'error');
             return;
         }
 

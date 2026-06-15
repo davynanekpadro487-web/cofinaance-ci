@@ -53,26 +53,26 @@ python manage.py runserver
 
 ---
 
-## Accès à l'application
-
-| URL | Description |
-|-----|-------------|
-| http://127.0.0.1:8000/api/docs/ | Documentation Swagger |
-| http://127.0.0.1:8000/admin/ | Interface d'administration |
-| http://127.0.0.1:8000/chat/ | Interface de chat en temps réel |
-
----
-
 ## Comptes de démonstration
 
 | Rôle | Username | Mot de passe |
 |------|----------|--------------|
 | Administrateur | admin | Admin@2026 |
-| Agent | agent1 | Agent@2026 |
-| Agent | agent2 | Agent@2026 |
+| Agent terrain | agent1 | Agent@2026 |
+| Agent terrain | agent2 | Agent@2026 |
 | Client | client1 | Client@2026 |
 | Client | client2 | Client@2026 |
 | Client | client3 | Client@2026 |
+
+## URLs importantes
+
+| Page | URL |
+|------|-----|
+| Accueil/Login | http://127.0.0.1:8000/ |
+| Dashboard | http://127.0.0.1:8000/dashboard/ |
+| API Swagger | http://127.0.0.1:8000/api/docs/ |
+| Admin Django | http://127.0.0.1:8000/admin/ |
+| Support Chat | http://127.0.0.1:8000/support-chat/ |
 
 ---
 

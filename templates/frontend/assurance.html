@@ -265,8 +265,8 @@
                             <i class="fa-solid fa-file-signature"></i> Souscrire
                         </button>
                     ` : `
-                        <button class="btn-action" style="width: 100%; justify-content: center; padding: 12px; background:#b0c4d8; color:#ffffff; cursor:not-allowed;" disabled>
-                            Vue Agent/Admin
+                        <button class="btn-action accent" style="width: 100%; justify-content: center; padding: 12px;" onclick="loadSubscriptions()">
+                            <i class="fa-solid fa-list"></i> Voir les souscriptions
                         </button>
                     `}
                 `;
@@ -314,11 +314,11 @@
                 produit: productId
             });
             if (res) {
-                alert(`Félicitations ! Votre souscription à "${productName}" est active.`);
+                showToast(`Félicitations ! Votre souscription à "${productName}" est active.`, 'success');
                 loadSubscriptions();
             }
         } catch (error) {
-            alert('Erreur lors de la souscription : ' + error.message);
+            showToast('Erreur lors de la souscription : ' + error.message, 'error');
         }
     }
 </script>

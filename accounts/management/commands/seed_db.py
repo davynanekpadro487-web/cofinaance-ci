@@ -22,6 +22,7 @@ class Command(BaseCommand):
         Souscription.objects.all().delete()
         Remboursement.objects.all().delete()
         DemandeCredit.objects.all().delete()
+        ProduitAssurance.objects.all().delete()
         User.objects.filter(
             username__in=[
                 'client1','client2','client3',
@@ -75,8 +76,7 @@ class Command(BaseCommand):
         produit1 = ProduitAssurance.objects.create(
             nom='Assurance Vie Essentielle',
             type_assurance='vie',
-            description='Couverture vie de base pour '
-                        'micro-entrepreneurs.',
+            description='Couverture vie de base pour micro-entrepreneurs.',
             prime_mensuelle=Decimal('2500.00'),
             duree_mois=12,
             est_actif=True
@@ -84,10 +84,25 @@ class Command(BaseCommand):
         produit2 = ProduitAssurance.objects.create(
             nom='Assurance Décès-Invalidité Plus',
             type_assurance='deces_invalidite',
-            description='Protection complète décès '
-                        'et invalidité.',
+            description='Protection complète décès et invalidité.',
             prime_mensuelle=Decimal('5000.00'),
             duree_mois=6,
+            est_actif=True
+        )
+        produit3 = ProduitAssurance.objects.create(
+            nom='Assurance Vie Sécurité Famille',
+            type_assurance='vie',
+            description='Couverture vie renforcée pour toute la famille.',
+            prime_mensuelle=Decimal('7500.00'),
+            duree_mois=18,
+            est_actif=True
+        )
+        produit4 = ProduitAssurance.objects.create(
+            nom='Assurance Décès-Invalidité Premium',
+            type_assurance='deces_invalidite',
+            description='Protection maximale accident, invalidité et décès.',
+            prime_mensuelle=Decimal('12000.00'),
+            duree_mois=24,
             est_actif=True
         )
 
@@ -227,13 +242,13 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                '\n✅ Données de démo créées avec succès !\n'
-                '👤 Comptes disponibles :\n'
-                '   Admin   → admin / Admin@2026\n'
-                '   Agent 1 → agent1 / Agent@2026\n'
-                '   Agent 2 → agent2 / Agent@2026\n'
-                '   Client 1 → client1 / Client@2026\n'
-                '   Client 2 → client2 / Client@2026\n'
-                '   Client 3 → client3 / Client@2026\n'
+                '\n[OK] Donnees de demo creees avec succes !\n'
+                'Comptes disponibles :\n'
+                '   Admin   -> admin / Admin@2026\n'
+                '   Agent 1 -> agent1 / Agent@2026\n'
+                '   Agent 2 -> agent2 / Agent@2026\n'
+                '   Client 1 -> client1 / Client@2026\n'
+                '   Client 2 -> client2 / Client@2026\n'
+                '   Client 3 -> client3 / Client@2026\n'
             )
         )

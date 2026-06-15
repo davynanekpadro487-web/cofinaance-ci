@@ -229,7 +229,7 @@
             });
 
             if (res) {
-                alert('Profil mis à jour avec succès !');
+                showToast('Profil mis à jour avec succès !', 'success');
                 loadProfileData();
                 
                 // Update header username
@@ -239,7 +239,7 @@
                 document.getElementById('header-user-avatar').textContent = initials;
             }
         } catch (error) {
-            alert('Erreur lors de la mise à jour : ' + error.message);
+            showToast('Erreur lors de la mise à jour : ' + error.message, 'error');
         }
     }
 
@@ -255,11 +255,11 @@
             });
 
             if (res) {
-                alert('Votre mot de passe a été modifié avec succès !');
+                showToast('Votre mot de passe a été modifié avec succès !', 'success');
                 document.getElementById('password-form').reset();
             }
         } catch (error) {
-            alert('Erreur: ' + error.message);
+            showToast('Erreur: ' + error.message, 'error');
         }
     }
 </script>

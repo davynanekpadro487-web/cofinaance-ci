@@ -334,13 +334,13 @@
             });
 
             if (res) {
-                alert('Demande de crédit soumise avec succès !');
+                showToast('Demande de crédit soumise avec succès !', 'success');
                 closeRequestModal();
                 document.getElementById('credit-form').reset();
                 loadCredits();
             }
         } catch (error) {
-            alert('Erreur: ' + error.message);
+            showToast('Erreur: ' + error.message, 'error');
         }
     }
 
@@ -422,12 +422,12 @@
                 statut: status
             });
             if (res) {
-                alert(`Statut mis à jour vers "${status}" avec succès !`);
+                showToast(`Statut mis à jour vers "${status}" avec succès !`, 'success');
                 closeDetailsModal();
                 loadCredits();
             }
         } catch (error) {
-            alert('Erreur lors du changement de statut : ' + error.message);
+            showToast('Erreur lors du changement de statut : ' + error.message, 'error');
         }
     }
 
@@ -439,12 +439,12 @@
                 montant_paye: parseFloat(amount)
             });
             if (res) {
-                alert('Paiement enregistré avec succès !');
+                showToast('Paiement enregistré avec succès !', 'success');
                 viewDetails(currentCreditId); // Refresh details
                 loadCredits();
             }
         } catch (error) {
-            alert('Erreur lors du paiement : ' + error.message);
+            showToast('Erreur lors du paiement : ' + error.message, 'error');
         }
     }
 </script>

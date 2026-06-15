@@ -26,6 +26,9 @@ urlpatterns = [
     path('', TemplateView.as_view(
         template_name='frontend/login.html'), 
         name='login'),
+    path('connexion/', TemplateView.as_view(
+        template_name='frontend/login.html'), 
+        name='login_connexion'),
     path('dashboard/', TemplateView.as_view(
         template_name='frontend/dashboard.html'), 
         name='dashboard'),
