@@ -18,8 +18,8 @@ Développée avec Django 5.1 et Django REST Framework.
 
 ### 1. Cloner le dépôt
 
-git clone https://github.com/cofinci/cofinci.git
-cd cofinci
+git clone https://github.com/davynanekpadro487-web/cofinaance-ci.git
+cd cofinaance-ci
 
 ### 2. Créer et activer l'environnement virtuel
 
@@ -92,7 +92,7 @@ python manage.py runserver
 ## Démonstration du chat en temps réel
 
 1. Lancer le serveur avec Daphne
-2. Ouvrir http://127.0.0.1:8000/chat/ 
+2. Ouvrir http://127.0.0.1:8000/support-chat/ 
    dans deux onglets différents
 3. Dans le premier onglet : se connecter avec 
    le token JWT de client1

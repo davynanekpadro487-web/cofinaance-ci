@@ -116,12 +116,15 @@
                 const div = document.createElement('div');
                 div.className = `notification-item ${n.est_lu ? '' : 'non-lu'}`;
                 
-                // Determine icon based on message content
                 let iconClass = 'fa-info';
                 let iconTheme = 'info';
                 const lowerText = n.message.toLowerCase();
                 
-                if (lowerText.includes('approuv') || lowerText.includes('valid') || lowerText.includes('succès')) {
+                // Determine icon based on message content
+                if (n.type_notification === 'assurance' || lowerText.includes('assurance') || lowerText.includes('souscr')) {
+                    iconClass = 'fa-shield-halved';
+                    iconTheme = 'success';
+                } else if (lowerText.includes('approuv') || lowerText.includes('valid') || lowerText.includes('succès')) {
                     iconClass = 'fa-check';
                     iconTheme = 'success';
                 } else if (lowerText.includes('paye') || lowerText.includes('rembours')) {

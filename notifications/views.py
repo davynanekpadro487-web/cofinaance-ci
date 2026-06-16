@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema
 from .models import Notification
 from .serializers import NotificationSerializer
 
-class NotificationListView(generics.ListAPIView):
+class NotificationListView(generics.ListCreateAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 
@@ -17,6 +17,9 @@ class NotificationListView(generics.ListAPIView):
         return Notification.objects.filter(
             destinataire=self.request.user
         )
+
+    def perform_create(self, serializer):
+        serializer.save(destinataire=self.request.user)
 
 class MarquerLuView(APIView):
     permission_classes = [IsAuthenticated]

@@ -34,6 +34,16 @@ class SouscriptionListCreateView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        souscription = serializer.save()
+        from notifications.models import Notification
+        Notification.objects.create(
+            destinataire=souscription.client,
+            titre="Souscription confirmée",
+            message=f"Votre souscription à {souscription.produit.nom} est active.",
+            type_notification='assurance'
+        )
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return SouscriptionCreateSerializer

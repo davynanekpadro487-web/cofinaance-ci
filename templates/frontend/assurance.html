@@ -170,7 +170,7 @@
 </div>
 
 <!-- Active Subscriptions -->
-<div class="card">
+<div class="card souscriptions-list" id="souscriptions-section">
     <h3 style="margin-bottom: 20px; color: var(--primary-dark); font-weight: 600;">Vos Souscriptions</h3>
     <div class="table-container">
         <table>
@@ -265,7 +265,7 @@
                             <i class="fa-solid fa-file-signature"></i> Souscrire
                         </button>
                     ` : `
-                        <button class="btn-action accent" style="width: 100%; justify-content: center; padding: 12px;" onclick="loadSubscriptions()">
+                        <button class="btn-action accent" style="width: 100%; justify-content: center; padding: 12px;" onclick="document.querySelector('.souscriptions-list').scrollIntoView({behavior:'smooth'})">
                             <i class="fa-solid fa-list"></i> Voir les souscriptions
                         </button>
                     `}
@@ -307,14 +307,18 @@
     }
 
     async function subscribeProduct(productId, productName) {
-        if (!confirm(`Souhaitez-vous souscrire à l'assurance "${productName}" ?`)) return;
-        
+        const produit = { nom: productName };
         try {
             const res = await apiCall('POST', '/api/assurance/souscriptions/', {
                 produit: productId
             });
             if (res) {
                 showToast(`Félicitations ! Votre souscription à "${productName}" est active.`, 'success');
+                await apiCall('POST', '/api/notifications/', {
+                    titre: "Souscription confirmée",
+                    message: `Votre souscription à ${produit.nom} est active.`,
+                    type_notification: "assurance"
+                });
                 loadSubscriptions();
             }
         } catch (error) {
